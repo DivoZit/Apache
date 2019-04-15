@@ -1,5 +1,6 @@
 package com.company;
 
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,7 +14,10 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException, InvalidFormatException {
         createExcelFile();
+        readExcelFile();
+    }
 
+    private static void readExcelFile() throws IOException, InvalidFormatException {
         File file = new File("excel.xlsx");
         Workbook wb = WorkbookFactory.create(file);
         Sheet s1 = wb.getSheetAt(0);
@@ -24,12 +28,19 @@ public class Main {
                     (long) row.getCell(1).getNumericCellValue(),
                     row.getCell(2).getStringCellValue());
         }
-
     }
 
     private static void createExcelFile() throws IOException {
         List<String> animals = Arrays.asList("Zebra", "Giraffe", "Wolf", "Lion", "Otter", "Sea Lion");
         List<Integer> ages = Arrays.asList(2, 4, 5, 1, 1, 2);
+        List<Short> colors = Arrays.asList(
+                HSSFColor.LIME.index,
+                HSSFColor.BLACK.index,
+                HSSFColor.BLUE.index,
+                HSSFColor.RED.index,
+                HSSFColor.ORANGE.index,
+                HSSFColor.SEA_GREEN.index
+        );
         Workbook wb = new XSSFWorkbook();
         CreationHelper ch = wb.getCreationHelper();
         Sheet s1 = wb.createSheet("First sheet");
@@ -37,6 +48,7 @@ public class Main {
         RichTextString rts = ch.createRichTextString("Animal");
         Font font = wb.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setColor(HSSFColor.BLUE_GREY.index);
         rts.applyFont(font);
         r1.createCell(0).setCellValue(rts);
         rts = ch.createRichTextString("Age");
@@ -45,8 +57,14 @@ public class Main {
         int rowCount = 1;
         int i = 0;
         for (String animal : animals) {
+
             Row row = s1.createRow(rowCount++);
-            row.createCell(0).setCellValue(animal);
+            RichTextString colorString = ch.createRichTextString(animal);
+            Font fontColor = wb.createFont();
+            fontColor.setColor(colors.get(i));
+            colorString.applyFont(fontColor);
+
+            row.createCell(0).setCellValue(colorString);
             row.createCell(1).setCellValue(ages.get(i++));
             row.createCell(2).setCellValue("Trecias");
         }
